@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JobPilot</title>
+<style>
+:root{--bg:#f4f6f9;--panel:#fff;--ink:#16202e;--mute:#667487;--line:#e2e7ee;--acc:#1f4fd8;--acc-ink:#fff;
+--ok:#12805c;--okbg:#e2f5ee;--warn:#9a5b00;--warnbg:#fdf0d8;--bad:#b3261e;--badbg:#fbe4e2;--info:#1f4fd8;--infobg:#e6edff;
+font-family:"Instrument Sans","Segoe UI",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#0f141b;--panel:#171e28;--ink:#e6ebf2;--mute:#8d9bb0;--line:#263040;--acc:#6b93ff;--acc-ink:#0b1220;
+--ok:#4cd3a0;--okbg:#10332a;--warn:#f0b14a;--warnbg:#3a2c10;--bad:#ff8b82;--badbg:#3d1a18;--info:#8fb0ff;--infobg:#1a2745}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);display:flex;min-height:100vh;font-size:14px;line-height:1.5}
+aside{width:210px;flex:none;background:var(--panel);border-right:1px solid var(--line);padding:18px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:2px}
+.logo{font-weight:700;font-size:18px;padding:4px 10px 16px;letter-spacing:-.01em}
+aside a{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;color:var(--mute);text-decoration:none;font-weight:500}
+aside a:hover{background:var(--bg);color:var(--ink)}aside a.on{background:var(--infobg);color:var(--info)}
+aside .n{background:var(--acc);color:var(--acc-ink);border-radius:10px;font-size:11px;padding:0 7px;font-weight:600}
+main{flex:1;padding:28px 34px;max-width:1100px;min-width:0}
+h1{font-size:22px;margin:0;letter-spacing:-.01em}h2{font-size:15px;margin:22px 0 10px}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px;flex-wrap:wrap}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.stat b{display:block;font-size:26px;letter-spacing:-.02em;line-height:1.1}.stat span{color:var(--mute);font-size:12.5px}
+.bar{height:6px;background:var(--line);border-radius:3px;margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between}.row.l{justify-content:flex-start}
+.muted{color:var(--mute)}.sm{font-size:12.5px}
+.btn{font:inherit;font-weight:600;padding:7px 13px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--acc)}.btn.pri{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}.btn.sm{padding:3px 9px;font-size:12.5px}
+.in{width:100%;font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin:6px 0}
+.in:focus,.btn:focus-visible,aside a:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+textarea.in{resize:vertical;line-height:1.5}
+.pill,.badge{border-radius:6px;padding:1px 8px;font-size:12px;font-weight:600;background:var(--infobg);color:var(--info);white-space:nowrap}
+.pill.ok,.s-applied,.s-interview{background:var(--okbg);color:var(--ok)}.pill.mid,.s-pending_approval,.s-needs_you,.s-reply{background:var(--warnbg);color:var(--warn)}
+.s-failed,.s-rejection,.s-rejected{background:var(--badbg);color:var(--bad)}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:12.5px;color:var(--mute);font-weight:600}
+tr:last-child td{border-bottom:0}.scroll{overflow-x:auto}
+label.f{display:block;margin:12px 0 2px;font-weight:600;font-size:13px}label.chk{display:flex;gap:8px;align-items:center;margin:6px 0}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}@media(max-width:800px){.cols{grid-template-columns:1fr}}
+.chart{display:flex;align-items:flex-end;gap:6px;height:110px;margin-top:8px}.chart div{flex:1;text-align:center;font-size:10.5px;color:var(--mute);display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.chart i{display:block;background:var(--acc);border-radius:3px 3px 0 0;min-height:2px}
+.chk-list{display:flex;flex-direction:column;gap:6px}.chk-list .ok{color:var(--ok)}.chk-list .no{color:var(--warn)}
+.log{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;padding:3px 0;border-bottom:1px solid var(--line)}
+.empty{text-align:center;color:var(--mute);padding:40px 10px}
+#toast{position:fixed;bottom:20px;right:20px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;opacity:0;transition:opacity .2s;pointer-events:none}
+#toast.show{opacity:1}#toast.err{background:var(--bad);color:#fff}
+@media(max-width:760px){body{flex-direction:column}aside{width:100%;height:auto;position:static;flex-direction:row;overflow-x:auto}.logo{display:none}main{padding:18px}}
+</style>
+</head>
+<body>
+<aside id="nav"></aside>
+<main id="view"></main>
+<div id="toast" role="status"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(path,opts={}){
+  const isForm=opts.body instanceof FormData;
+  const r=await fetch('/api'+path,{method:opts.method||'GET',headers:opts.body&&!isForm?{'Content-Type':'application/json'}:{},
+    body:opts.body?(isForm?opts.body:JSON.stringify(opts.body)):undefined});
+  if(!r.ok){let m=await r.text();try{m=JSON.parse(m).detail||m}catch(e){}throw new Error(m)}
+  return r.json();
+}
+function toast(m,err){const t=$('#toast');t.textContent=m;t.className='show'+(err?' err':'');clearTimeout(toast.t);toast.t=setTimeout(()=>t.className='',3500)}
+const guard=fn=>async(...a)=>{try{await fn(...a)}catch(e){toast(e.message,true)}};
+
+const NAV=[['overview','Overview'],['review','Review queue','review'],['needs','Needs you','needs'],['apps','Applications'],['jobs','Jobs'],
+['add','Add jobs'],['cvs','CVs'],['profile','Profile'],['settings','Settings'],['logs','Activity log']];
+let stats={},cur='overview';
+function renderNav(){$('#nav').innerHTML='<div class="logo">JobPilot</div>'+NAV.map(([k,l,c])=>
+  `<a href="#${k}" class="${k===cur?'on':''}">${l}${c&&stats[c]?`<span class="n">${stats[c]}</span>`:''}</a>`).join('')}
+const head=(t,extra='')=>`<div class="head"><h1>${t}</h1><div>${extra}</div></div>`;
+const empty=m=>`<div class="empty">${m}</div>`;
+const pillScore=s=>s==null?'':`<span class="pill ${s>=85?'ok':'mid'}">${s}</span>`;
+const statusPill=s=>`<span class="badge s-${s}">${esc(String(s).replace('_',' '))}</span>`;
+
+async function route(){
+  cur=(location.hash||'#overview').slice(1);if(!R[cur])cur='overview';
+  stats=await api('/stats');renderNav();await R[cur]();
+}
+window.addEventListener('hashchange',guard(route));
+setInterval(()=>{if(['overview','logs'].includes(cur)&&!document.activeElement.closest('input,textarea'))guard(route)()},8000);
+
+const R={
+async overview(){
+  const s=stats,h=s.health,pct=Math.min(100,Math.round(100*s.applied_today/Math.max(1,s.cap)));
+  const days=[...Array(14)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-13+i);const k=d.toLocaleDateString('en-CA');
+    return {k,label:d.getDate(),n:(s.daily.find(x=>x.d===k)||{}).n||0}});
+  const max=Math.max(1,...days.map(d=>d.n));
+  const todo=[[h.claude,'Add ANTHROPIC_API_KEY to .env'],[h.gmail,'Add Gmail app password to .env (SMTP_USER / SMTP_PASSWORD)'],
+    [h.cvs>0,'<a href="#cvs">Upload at least one CV</a>'],[h.profile,'<a href="#profile">Fill in your profile</a>']];
+  $('#view').innerHTML=head('Overview',`<span class="muted sm">Mode: <b>${s.mode}</b></span>`)+`
+  <div class="grid">
+   <div class="stat"><b>${s.applied_today}<span> / ${s.cap}</span></b><span>sent today</span><div class="bar"><i style="width:${pct}%"></i></div></div>
+   <div class="stat"><b>${s.review}</b><span>waiting for your review</span></div>
+   <div class="stat"><b>${s.needs}</b><span>need you</span></div>
+   <div class="stat"><b>${s.applied_total}</b><span>applied in total</span></div>
+   <div class="stat"><b>${s.replies}</b><span>replies (${s.interviews} interviews)</span></div>
+   <div class="stat"><b>${s.jobs_matched}</b><span>matched of ${s.jobs_total} jobs</span></div>
+  </div>
+  <div class="cols"><div><h2>Applications sent, last 14 days</h2><div class="card"><div class="chart">${days.map(d=>
+    `<div title="${d.k}: ${d.n}"><i style="height:${Math.round(100*d.n/max)}%"></i>${d.label}</div>`).join('')}</div></div></div>
+  <div><h2>Setup</h2><div class="card chk-list">${todo.map(([ok,t])=>`<div class="${ok?'ok':'no'}">${ok?'✓':'○'} ${ok?t.replace(/<[^>]+>/g,''):t}</div>`).join('')}
+    ${todo.every(t=>t[0])?'<div class="muted sm">Everything is connected.</div>':''}</div></div></div>
+  <h2>Run now</h2><div class="card row l">
+    <button class="btn" onclick="run('collect')">Collect jobs</button><button class="btn" onclick="run('match')">Score new jobs</button>
+    <button class="btn" onclick="run('prepare')">Write applications</button><button class="btn pri" onclick="run('send')">Send next one now</button>
+    <button class="btn" onclick="run('daily')">Run full daily cycle</button><button class="btn" onclick="run('replies')">Check replies</button></div>
+  <p class="muted sm">The scheduler runs the daily cycle at the hour you set, then sends one application every few minutes inside your sending window.</p>`;
+},
+async review(){
+  const a=await api('/applications?status=pending_approval');
+  $('#view').innerHTML=head('Review queue',a.length?`<button class="btn pri" onclick="approveAll()">Approve all ${a.length}</button>`:'')+
+   (a.length?a.map(x=>`<div class="card"><div class="row"><div><b>${esc(x.title)}</b> <span class="muted">at ${esc(x.company)}</span></div>${pillScore(x.score)}</div>
+    <div class="muted sm">${esc(x.reason||'')}</div>
+    <div class="row l sm" style="margin:6px 0"><span class="badge">${x.method}</span><span>CV: ${esc(x.cv_name||'-')}</span>
+     ${x.apply_email?`<span>To: ${esc(x.apply_email)}</span>`:''}${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">View job</a>`:''}</div>
+    <input class="in" value="${esc(x.subject)}" onchange="saveApp(${x.id},'subject',this.value)">
+    <textarea class="in" rows="7" onchange="saveApp(${x.id},'body',this.value)">${esc(x.body)}</textarea>
+    <div class="row l"><button class="btn pri" onclick="act(${x.id},'approve')">Approve</button><button class="btn" onclick="act(${x.id},'reject')">Skip</button></div></div>`).join('')
+   :empty('Nothing to review. Run "Write applications" on the Overview, or wait for the daily cycle.'));
+},
+async needs(){
+  const a=await api('/applications?status=needs_you');
+  $('#view').innerHTML=head('Needs you')+(a.length?a.map(x=>`<div class="card"><div class="row"><div><b>${esc(x.title)}</b> <span class="muted">at ${esc(x.company)}</span></div>${pillScore(x.score)}</div>
+    <div class="sm" style="margin:4px 0;color:var(--warn)">${esc(x.note||'')}</div>
+    <textarea class="in" rows="6" id="cn${x.id}">${esc(x.body)}</textarea>
+    <div class="row l"><a class="btn pri" href="${esc(x.url)}" target="_blank" rel="noopener" style="text-decoration:none">Open application page</a>
+     <button class="btn" onclick="copyNote(${x.id})">Copy cover note</button><button class="btn" onclick="act(${x.id},'retry')">Retry bot</button>
+     <button class="btn" onclick="act(${x.id},'done')">Mark applied</button><button class="btn" onclick="act(${x.id},'reject')">Skip</button></div></div>`).join(''):empty('Nothing needs you right now.'));
+},
+async apps(){
+  const st=window._appf||'';const a=await api('/applications'+(st?'?status='+st:''));
+  $('#view').innerHTML=head('Applications',`<select class="in" style="width:auto;margin:0" onchange="window._appf=this.value;guard(route)()">
+   ${['','pending_approval','approved','applied','needs_you','failed','rejected'].map(v=>`<option value="${v}" ${v===st?'selected':''}>${v?v.replace('_',' '):'All statuses'}</option>`).join('')}</select>`)+
+  (a.length?`<div class="scroll"><table><tr><th>Date</th><th>Role</th><th>Method</th><th>Status</th><th>Reply</th><th></th></tr>${a.map(x=>`<tr>
+   <td class="sm muted">${esc((x.applied_at||x.created_at).slice(0,10))}</td><td><b>${esc(x.title)}</b><br><span class="muted sm">${esc(x.company)}</span>${x.note?`<br><span class="muted sm">${esc(x.note)}</span>`:''}</td>
+   <td>${x.method}</td><td>${statusPill(x.status)}</td><td>${x.reply_status?statusPill(x.reply_status):'<span class="muted">-</span>'}${x.followup_sent?'<br><span class="muted sm">followed up</span>':''}</td>
+   <td>${x.status==='failed'?`<button class="btn sm" onclick="act(${x.id},'retry')">Retry</button>`:''}</td></tr>`).join('')}</table></div>`:empty('No applications yet.'));
+},
+async jobs(){
+  const st=window._jf||'',q=window._jq||'';const j=await api(`/jobs?status=${st}&q=${encodeURIComponent(q)}`);
+  $('#view').innerHTML=head('Jobs',`<div class="row l"><input class="in" id="jq" placeholder="Search title or company" value="${esc(q)}" style="width:220px;margin:0" onkeydown="if(event.key==='Enter'){window._jq=this.value;guard(route)()}">
+   <select class="in" style="width:auto;margin:0" onchange="window._jf=this.value;guard(route)()">${['','new','matched','queued','rejected'].map(v=>`<option value="${v}" ${v===st?'selected':''}>${v||'All statuses'}</option>`).join('')}</select></div>`)+
+  (j.length?`<div class="scroll"><table><tr><th>Score</th><th>Role</th><th>Source</th><th>Apply via</th><th>Status</th></tr>${j.map(x=>`<tr><td>${pillScore(x.score)}</td>
+   <td>${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener"><b>${esc(x.title)}</b></a>`:`<b>${esc(x.title)}</b>`}<br><span class="muted sm">${esc(x.company)}${x.location?' · '+esc(x.location):''}</span>${x.reason?`<br><span class="muted sm">${esc(x.reason)}</span>`:''}</td>
+   <td>${x.source}</td><td>${x.apply_type}</td><td>${statusPill(x.status)}</td></tr>`).join('')}</table></div>`:empty('No jobs yet. Use "Collect jobs" on the Overview or paste posts under Add jobs.'));
+},
+async add(){
+  $('#view').innerHTML=head('Add jobs')+`<div class="card"><b>Paste hiring posts</b><div class="muted sm">LinkedIn, WhatsApp or Telegram posts. Separate several posts with a line containing only ---. Emails in the post are picked up automatically.</div>
+   <textarea class="in" id="paste" rows="9" placeholder="Hiring Data Analyst at Acme, 2+ years SQL. Send your CV to hr@acme.com"></textarea>
+   <button class="btn pri" onclick="doPaste()">Add posts</button></div>
+   <div class="card"><b>Add one job manually</b><div class="cols"><div><label class="f">Title</label><input class="in" id="m_title"><label class="f">Company</label><input class="in" id="m_company"><label class="f">Location</label><input class="in" id="m_location"></div>
+   <div><label class="f">Application link</label><input class="in" id="m_url"><label class="f">HR email (optional)</label><input class="in" id="m_email"></div></div>
+   <label class="f">Description</label><textarea class="in" id="m_desc" rows="4"></textarea><button class="btn pri" onclick="doManual()">Add job</button></div>`;
+},
+async cvs(){
+  const c=await api('/cvs');
+  $('#view').innerHTML=head('CVs')+`<div class="card"><b>Upload a CV</b><div class="muted sm">One per role type. The matcher picks the best one for each job. Use text-based PDF or DOCX.</div>
+   <div class="cols"><div><label class="f">Name</label><input class="in" id="cv_name" placeholder="Data Analyst CV"></div><div><label class="f">Role it is for</label><input class="in" id="cv_tag" placeholder="data analyst, BI"></div></div>
+   <input type="file" id="cv_file" accept=".pdf,.docx,.txt" class="in"><button class="btn pri" onclick="uploadCv()">Upload CV</button></div>`+
+  (c.length?`<table><tr><th>Name</th><th>Role</th><th>Text read</th><th>Added</th><th></th></tr>${c.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${esc(x.role_tag)}</td><td>${x.chars} chars</td><td class="muted sm">${x.created_at.slice(0,10)}</td>
+   <td><button class="btn sm" onclick="delCv(${x.id})">Delete</button></td></tr>`).join('')}</table>`:empty('No CVs yet.'));
+},
+async profile(){formPage('Profile',await api('/profile'),PROFILE,'/profile',
+  'Everything here is used to write applications and fill forms. Anything left blank is never guessed.')},
+async settings(){formPage('Settings',await api('/settings'),SETTINGS,'/settings',
+  'Digest mode waits for your approval. Autopilot sends everything above the minimum score.')},
+async logs(){
+  const l=await api('/logs');
+  $('#view').innerHTML=head('Activity log')+(l.length?`<div class="card">${l.map(x=>`<div class="log"><span class="muted">${x.ts.slice(5,16)}</span> <b style="color:${x.level==='error'?'var(--bad)':x.level==='warn'?'var(--warn)':'inherit'}">${x.level}</b> ${esc(x.msg)}</div>`).join('')}</div>`:empty('Nothing has run yet.'));
+}};
+
+const PROFILE=[['full_name','Full name','text'],['email','Contact email','text'],['phone','Phone','text'],['location','Current location','text'],['linkedin','LinkedIn URL','text'],
+['github','GitHub or portfolio','text'],['current_title','Current title','text'],['current_company','Current company','text'],['years_experience','Years of experience','text'],
+['current_ctc','Current CTC','text'],['expected_ctc','Expected CTC','text'],['notice_period','Notice period','text'],['work_authorization','Work authorization','text'],
+['willing_to_relocate','Willing to relocate','text'],['skills','Key skills','textarea'],['summary','Professional summary','textarea'],
+['standard_answers','Standard answers, one per line as "Question: answer"','textarea'],['signature','Email sign-off (optional)','textarea']];
+const SETTINGS=[['roles','Target roles (comma separated)','list'],['locations','Preferred locations','list'],['exclude_keywords','Skip titles containing','list'],
+['blacklist_companies','Never apply to these companies','list'],['daily_cap','Daily application cap','number'],['min_score','Minimum match score (0-100)','number'],
+['mode','Mode','select:digest,autopilot'],['send_interval_minutes','Minutes between sends','number'],['send_window_start','Send from hour (0-23)','number'],
+['send_window_end','Send until hour (0-23)','number'],['collect_hour','Collect jobs at hour','number'],['followups_enabled','Send one follow-up if no reply','bool'],
+['followup_days','Follow up after (days)','number'],['greenhouse_boards','Greenhouse company slugs','list'],['lever_boards','Lever company slugs','list'],
+['max_match_per_run','Max jobs scored per run','number'],['sources','Job sources','sources'],['form_headless','Hide the form-bot browser window','bool'],
+['form_dry_run','Form bot dry run (fill, never submit)','bool']];
+function formPage(title,data,schema,path,hint){
+  const field=([k,l,t])=>{const v=data[k];
+    if(t==='textarea')return `<label class="f">${l}</label><textarea class="in" rows="4" data-k="${k}" data-t="text">${esc(v)}</textarea>`;
+    if(t==='bool')return `<label class="chk"><input type="checkbox" data-k="${k}" data-t="bool" ${v?'checked':''}> ${l}</label>`;
+    if(t==='list')return `<label class="f">${l}</label><input class="in" data-k="${k}" data-t="list" value="${esc((v||[]).join(', '))}">`;
+    if(t==='sources')return `<label class="f">${l}</label>`+Object.keys(v).map(s=>`<label class="chk"><input type="checkbox" data-src="${s}" ${v[s]?'checked':''}> ${s}</label>`).join('');
+    if(t.startsWith('select'))return `<label class="f">${l}</label><select class="in" data-k="${k}" data-t="text">${t.split(':')[1].split(',').map(o=>`<option ${o===v?'selected':''}>${o}</option>`).join('')}</select>`;
+    return `<label class="f">${l}</label><input class="in" data-k="${k}" data-t="${t}" value="${esc(v)}">`};
+  $('#view').innerHTML=head(title,'<button class="btn pri" onclick="saveForm(\''+path+'\')">Save changes</button>')+`<p class="muted">${hint}</p><div class="card cols">${schema.map(field).join('')}</div>`;
+}
+const saveForm=guard(async path=>{
+  const body={};document.querySelectorAll('[data-k]').forEach(e=>{const t=e.dataset.t,k=e.dataset.k;
+    body[k]=t==='bool'?e.checked:t==='number'?Number(e.value):t==='list'?e.value.split(',').map(s=>s.trim()).filter(Boolean):e.value});
+  const src={};document.querySelectorAll('[data-src]').forEach(e=>src[e.dataset.src]=e.checked);if(Object.keys(src).length)body.sources=src;
+  await api(path,{method:'PUT',body});toast('Saved');});
+const run=guard(async t=>{await api('/run/'+t,{method:'POST'});toast('Started: '+t+'. Check the activity log for progress.')});
+const act=guard(async(id,a)=>{await api(`/applications/${id}/${a}`,{method:'POST'});toast('Done');await route()});
+const approveAll=guard(async()=>{await api('/approve_all',{method:'POST'});toast('Approved. They will go out through the day.');await route()});
+const saveApp=guard(async(id,k,v)=>{await api('/applications/'+id,{method:'PUT',body:{[k]:v}});toast('Saved')});
+const copyNote=id=>{navigator.clipboard.writeText($('#cn'+id).value);toast('Copied')};
+const doPaste=guard(async()=>{const r=await api('/paste',{method:'POST',body:{text:$('#paste').value}});toast(`Added ${r.added} job(s)`);$('#paste').value=''});
+const doManual=guard(async()=>{await api('/jobs/manual',{method:'POST',body:{title:$('#m_title').value,company:$('#m_company').value,location:$('#m_location').value,
+  url:$('#m_url').value,email:$('#m_email').value,description:$('#m_desc').value}});toast('Job added');route()});
+const uploadCv=guard(async()=>{const f=$('#cv_file').files[0];if(!f||!$('#cv_name').value)throw new Error('Add a name and choose a file');
+  const fd=new FormData();fd.append('file',f);fd.append('name',$('#cv_name').value);fd.append('role_tag',$('#cv_tag').value);
+  await api('/cvs',{method:'POST',body:fd});toast('CV uploaded');route()});
+const delCv=guard(async id=>{if(confirm('Delete this CV?')){await api('/cvs/'+id,{method:'DELETE'});route()}});
+guard(route)();
+</script>
+</body>
+</html>
